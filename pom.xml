@@ -9,6 +9,7 @@
   <version>1.0.1-SNAPSHOT</version>
 
   <name>statemachine</name>
+  <packaging>jar</packaging>
 
   <url>https://github.com/HonoluluHenk/statemachine</url>
 
