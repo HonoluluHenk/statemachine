@@ -6,7 +6,7 @@
 
   <groupId>ch.christophlinder.statemachine</groupId>
   <artifactId>statemachine</artifactId>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.0.1</version>
 
   <name>statemachine</name>
   <packaging>jar</packaging>
