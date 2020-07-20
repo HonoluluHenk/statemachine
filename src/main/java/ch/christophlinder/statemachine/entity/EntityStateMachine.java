@@ -52,14 +52,14 @@ public class EntityStateMachine<Entity, State extends Serializable, Transitions>
             Function<Transitions, Outcome<State, R>> transition
     ) {
         State fromState = getStateFromEntity(entity);
-        var outcome = stateMachine.transition(fromState, transition);
+        Outcome<State, R> outcome = stateMachine.transition(fromState, transition);
         setStateInEntity(entity, outcome);
 
         return outcome;
     }
 
     private <R> void setStateInEntity(Entity entity, Outcome<State, R> outcome) {
-        var nextState = outcome.getNextState();
+        State nextState = outcome.getNextState();
         stateSetter.accept(entity, nextState);
     }
 

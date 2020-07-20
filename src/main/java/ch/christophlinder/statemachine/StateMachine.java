@@ -6,6 +6,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -30,7 +31,7 @@ public class StateMachine<State extends Serializable, Transitions> {
     private static <K, V> Map<K, V> requireValuesNotNull(
             Map<K, V> map
     ) {
-        var containsNullValues = map.containsValue(null);
+        boolean containsNullValues = map.containsValue(null);
 
         if (containsNullValues) {
             throw new IllegalArgumentException("Transitions map may not contain null values");
@@ -58,7 +59,7 @@ public class StateMachine<State extends Serializable, Transitions> {
     /**
      * <strong>Requires</strong> the transition function to return a non-null value!.
      *
-     * Just in case you absolute need a null: wrap it into an {@link java.util.Optional}.
+     * Just in case you absolute need a null: wrap it into an {@link Optional}.
      */
     public <R> R transition(
             State fromState,
@@ -66,8 +67,8 @@ public class StateMachine<State extends Serializable, Transitions> {
     ) {
         try {
 
-            var t = transitionsFor(fromState);
-            var result = requireNonNull(transition.apply(t), "transition invocation returned null, state: " + fromState);
+            Transitions t = transitionsFor(fromState);
+            R result = requireNonNull(transition.apply(t), "transition invocation returned null, state: " + fromState);
             return result;
 
         } catch (TransitionNotAllowed e) {
@@ -80,7 +81,7 @@ public class StateMachine<State extends Serializable, Transitions> {
             Consumer<Transitions> transition
     ) {
         try {
-            var t = transitionsFor(fromState);
+            Transitions t = transitionsFor(fromState);
             transition.accept(t);
         } catch (TransitionNotAllowed e) {
             throw enrichWithState(fromState, e);
