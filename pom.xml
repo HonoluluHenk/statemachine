@@ -6,7 +6,7 @@
 
   <groupId>ch.christophlinder.statemachine</groupId>
   <artifactId>statemachine</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.0</version>
 
   <name>statemachine</name>
 
