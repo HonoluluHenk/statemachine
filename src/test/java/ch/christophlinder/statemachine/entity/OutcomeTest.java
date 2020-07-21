@@ -11,19 +11,17 @@ class OutcomeTest {
 
     @Test
     void shouldPassValuesToGetter() {
-        Outcome<BigInteger, BigInteger> out = new Outcome<>(BigInteger.ZERO, BigInteger.ONE);
+        Outcome<BigInteger> out = new Outcome<>(BigInteger.ZERO);
 
         assertThat(out.getNextState())
                 .isSameAs(BigInteger.ZERO);
-
-        assertThat(out.getResult())
-                .isSameAs(BigInteger.ONE);
     }
 
     @Test
     void shouldThrowOnNullCtorParams() {
-
-        assertThrows(NullPointerException.class, () -> new Outcome<>(null, BigInteger.ONE));
-        assertThrows(NullPointerException.class, () -> new Outcome<>(BigInteger.ZERO, null));
+        //noinspection ResultOfObjectAllocationIgnored
+        assertThrows(
+                NullPointerException.class,
+                () -> new Outcome<>(null));
     }
 }

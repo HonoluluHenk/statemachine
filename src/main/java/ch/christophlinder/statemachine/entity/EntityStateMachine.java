@@ -47,18 +47,18 @@ public class EntityStateMachine<Entity, State extends Serializable, Transitions>
         return of(EntityWithState::getState, EntityWithState::setState, transitions);
     }
 
-    public <R> Outcome<State, R> transition(
+    public <Out extends Outcome<State>> Out transition(
             Entity entity,
-            Function<Transitions, Outcome<State, R>> transition
+            Function<Transitions, Out> transition
     ) {
         State fromState = getStateFromEntity(entity);
-        Outcome<State, R> outcome = stateMachine.transition(fromState, transition);
+        Out outcome = stateMachine.transition(fromState, transition);
         setStateInEntity(entity, outcome);
 
         return outcome;
     }
 
-    private <R> void setStateInEntity(Entity entity, Outcome<State, R> outcome) {
+    private <Out extends Outcome<State>> void setStateInEntity(Entity entity, Out outcome) {
         State nextState = outcome.getNextState();
         stateSetter.accept(entity, nextState);
     }

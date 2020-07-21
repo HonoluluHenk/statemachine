@@ -6,20 +6,14 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import static java.util.Objects.requireNonNull;
 
 @DefaultAnnotation(NonNull.class)
-public class Outcome<NextState, R> {
+public class Outcome<NextState> {
     private final NextState nextState;
-    private final R result;
 
-    public Outcome(NextState nextState, R result) {
+    public Outcome(NextState nextState) {
         this.nextState = requireNonNull(nextState, "No nextState");
-        this.result = requireNonNull(result, "No result");
     }
 
     public NextState getNextState() {
         return nextState;
-    }
-
-    public R getResult() {
-        return result;
     }
 }
