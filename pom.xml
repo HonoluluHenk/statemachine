@@ -6,7 +6,7 @@
 
   <groupId>com.github.HonoluluHenk</groupId>
   <artifactId>statemachine</artifactId>
-  <version>1.0.2</version>
+  <version>1.0.3</version>
 
   <name>statemachine</name>
   <packaging>jar</packaging>
