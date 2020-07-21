@@ -1,169 +1,162 @@
 package ch.christophlinder.statemachine;
 
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.Map;
-
-import ch.christophlinder.statemachine.fixtures.AppFailureException;
-import ch.christophlinder.statemachine.fixtures.MyStates;
+import ch.christophlinder.statemachine.fixtures.MyState;
 import ch.christophlinder.statemachine.fixtures.transitions.MyAcceptedTransitions;
 import ch.christophlinder.statemachine.fixtures.transitions.MyInitTransitions;
 import ch.christophlinder.statemachine.fixtures.transitions.MyNextTransitions;
 import ch.christophlinder.statemachine.fixtures.transitions.MyTransitions;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static ch.christophlinder.statemachine.fixtures.MyStates.ACCEPTED;
-import static ch.christophlinder.statemachine.fixtures.MyStates.CANCELLED;
-import static ch.christophlinder.statemachine.fixtures.MyStates.INIT;
-import static ch.christophlinder.statemachine.fixtures.MyStates.NEXT;
-import static ch.christophlinder.statemachine.fixtures.MyStates.NULL;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.Map;
+
+import static ch.christophlinder.statemachine.fixtures.MyState.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@SuppressWarnings({ "FieldNamingConvention", "ResultOfObjectAllocationIgnored" })
+@SuppressWarnings({"FieldNamingConvention", "ResultOfObjectAllocationIgnored"})
 @SuppressFBWarnings("SIC_INNER_SHOULD_BE_STATIC")
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class StateMachineTest {
-	private static final String A = "A";
-	private static final String B = "B";
-	private static final String X = "X";
+    private static final String A = "A";
+    private static final String B = "B";
+    private static final String X = "X";
 
-	@Nested
-	class ConstructorTest {
-		@Test
-		void shouldThrowOnEmptyTransitions() {
-			assertThrows(
-					IllegalArgumentException.class,
-					() -> new StateMachine<MyStates, MyTransitions>(Collections.emptyMap())
-			);
-		}
+    @Nested
+    class ConstructorTest {
+        @Test
+        void throws_when_no_transitions_defined() {
+            assertThrows(
+                    IllegalArgumentException.class,
+                    () -> new StateMachine<MyState, MyTransitions>(Collections.emptyMap())
+            );
+        }
 
-		@Test
-		void shouldThrowOnNullMap() {
-			assertThrows(
-					NullPointerException.class,
-					() -> new StateMachine<MyStates, MyTransitions>(null)
-			);
-		}
+        @Test
+        void throws_on_null_transitions_map() {
+            assertThrows(
+                    NullPointerException.class,
+                    () -> new StateMachine<MyState, MyTransitions>(null)
+            );
+        }
 
-		@Test
-		void shouldThrowWithNullTransitionEntry() {
-			Map<MyStates, MyTransitions> values = new EnumMap<>(MyStates.class);
-			values.put(INIT, null);
+        @Test
+        void throws_on_null_transition() {
+            Map<MyState, MyTransitions> values = new EnumMap<>(MyState.class);
+            values.put(INIT, null);
 
-			IllegalArgumentException iae = assertThrows(
-					IllegalArgumentException.class,
-					() -> new StateMachine<>(values)
-			);
+            IllegalArgumentException iae = assertThrows(
+                    IllegalArgumentException.class,
+                    () -> new StateMachine<>(values)
+            );
 
-			assertThat(iae)
-					.hasMessage("Transitions map may not contain null values");
-		}
-	}
+            assertThat(iae)
+                    .hasMessage("Transitions map may not contain null values");
+        }
+    }
 
-	@Nested
-	class WithTransitionsTest {
-		private final StateMachine<MyStates, MyTransitions> sm = StateMachine.of(buildTransitions());
+    @Nested
+    class WithTransitionsTest {
+        private final StateMachine<MyState, MyTransitions> sm = StateMachine.of(buildTransitions());
 
-		private Map<MyStates, MyTransitions> buildTransitions() {
-			Map<MyStates, MyTransitions> map = new EnumMap<>(MyStates.class);
-			map.put(NULL, new MyInitTransitions());
-			map.put(INIT, new MyInitTransitions());
-			map.put(NEXT, new MyNextTransitions());
-			map.put(ACCEPTED, new MyAcceptedTransitions());
-			// MyStates.CANCELLED, // leave as not registered
+        private Map<MyState, MyTransitions> buildTransitions() {
+            Map<MyState, MyTransitions> map = new EnumMap<>(MyState.class);
+            map.put(NULL, new MyInitTransitions());
+            map.put(INIT, new MyInitTransitions());
+            map.put(NEXT, new MyNextTransitions());
+            map.put(ACCEPTED, new MyAcceptedTransitions());
+            // MyStates.CANCELLED, // leave as not registered
 
-			return map;
-		}
+            return map;
+        }
 
-		@Test
-		public void shouldRunTransitions() {
-			assertAll(
-					() -> assertThat(sm.<String>transition(INIT, t -> t.goNext(A, B)))
-							.isEqualTo("AB"),
-					() -> assertThrows(
-							TransitionNotAllowed.class,
-							() -> sm.<Boolean>transition(INIT, t -> t.accept(X))),
-					() -> assertThrows(
-							AppFailureException.class,
-							() -> sm.doTransition(INIT, MyTransitions::cancel)),
+        @Test
+        public void accepts_parameters_and_returns_results() {
+            assertAll(
+                    () -> assertThat(sm.<String>transition(INIT, t -> t.goNext(A, B)))
+                            .isEqualTo("AB"),
+                    () -> assertThat(sm.<Boolean>transition(NEXT, t -> t.accept(X)))
+                            .isEqualTo(true),
+                    () -> assertThat(sm.<Boolean>transition(NEXT, t -> t.accept("not X")))
+                            .isEqualTo(false),
+                    () -> assertThat(sm.transition(NEXT, MyTransitions::someResult))
+                            .isEqualTo("someResult")
+            );
+        }
 
-					() -> assertThrows(
-							TransitionNotAllowed.class,
-							() -> sm.transition(NEXT, t -> t.goNext(A, B))),
-					() -> assertThat(sm.<Boolean>transition(NEXT, t -> t.accept(X)))
-							.isEqualTo(true),
-					() -> assertThat(sm.<Boolean>transition(NEXT, t -> t.accept("not X")))
-							.isEqualTo(false),
-					() -> sm.doTransition(NEXT, MyTransitions::cancel),
+        @Test
+        void transitions_without_parameters_do_not_throw() {
+                assertThatCode(() -> sm.doTransition(NEXT, MyTransitions::cancel))
+                        .doesNotThrowAnyException();
+        }
 
-					() -> assertThrows(
-							TransitionNotAllowed.class,
-							() -> sm.transition(ACCEPTED, t -> t.goNext(A, B))),
-					() -> assertThrows(
-							TransitionNotAllowed.class,
-							() -> sm.transition(ACCEPTED, t -> t.accept(X))),
-					() -> assertThrows(
-							AppFailureException.class,
-							() -> sm.doTransition(ACCEPTED, MyTransitions::cancel))
-			);
-		}
+        @Nested
+        class IllegalTransitions {
+            @Test
+            public void throws_if_transition_not_registered() {
+                assertSoftly( softly -> {
+                    softly.assertThatThrownBy(() -> sm.transition(CANCELLED, t -> t.goNext(A, B)))
+                            .isExactlyInstanceOf(TransitionNotAllowed.class);
 
-		@Test
-		public void shouldThrowIfTransitionNotRegistered() {
-			assertAll(
-					() -> assertThrows(TransitionNotAllowed.class, () -> sm.transition(CANCELLED, t -> t.goNext(
-							A,
-							B))),
-					() -> assertThrows(TransitionNotAllowed.class, () -> sm.transition(CANCELLED, t -> t.accept(X))),
-					() -> assertThrows(
-							TransitionNotAllowed.class,
-							() -> sm.doTransition(CANCELLED, MyTransitions::cancel))
-			);
-		}
+                    softly.assertThatThrownBy(() -> sm.transition(CANCELLED, t -> t.accept(X)))
+                            .isExactlyInstanceOf(TransitionNotAllowed.class);
 
-		@Test
-		void shouldThrowWithState() {
-			TransitionNotAllowed ex = assertThrows(
-					TransitionNotAllowed.class,
-					() -> sm.<Boolean>transition(INIT, t -> t.accept("Schnitzel")));
+                    softly.assertThatThrownBy(() -> sm.doTransition(CANCELLED, MyTransitions::cancel))
+                            .isExactlyInstanceOf(TransitionNotAllowed.class);
+                });
+            }
 
-			assertThat(ex)
-					.hasMessageContaining("INIT");
-		}
+            @Test
+            void throws_if_transition_not_allowed_in_state() {
+                TransitionNotAllowed ex = assertThrows(
+                        TransitionNotAllowed.class,
+                        () -> sm.<Boolean>transition(INIT, t -> t.accept("Schnitzel"))
+                );
 
-		@Test
-		void shouldThrowWithDebugInfo() {
-			TransitionNotAllowed ex = assertThrows(
-					TransitionNotAllowed.class,
-					() -> sm.transition(NEXT, t -> t.goNext("Schnitzel", "Klopfer")));
+                assertThat(ex)
+                        .hasMessageContaining("INIT");
+            }
 
-			assertThat(ex)
-					.hasMessageContaining("Schnitzel")
-					.hasMessageContaining("Klopfer");
-		}
+            @Test
+            void throws_on_null_return_from_transition_implementation() {
+                assertThrows(
+                        NullPointerException.class,
+                        () -> sm.transition(NULL, MyTransitions::returnNull)
+                );
+            }
 
-		@Test
-		void shouldThrowOnNullReturn() {
-			assertThrows(
-					NullPointerException.class,
-					() -> sm.transition(NULL, MyTransitions::returnNull)
-			);
-		}
+            @Test
+            void TransitionNotAllowed_is_enriched_with_debug_info() {
+                TransitionNotAllowed ex = assertThrows(
+                        TransitionNotAllowed.class,
+                        () -> sm.transition(NEXT, t -> t.goNext("Schnitzel", "Klopfer"))
+                );
 
-		@Test
-		void pretryPrintShouldNotCrash() {
-			String actual = sm.toString();
+                assertThat(ex)
+                        .hasMessageContaining("Schnitzel")
+                        .hasMessageContaining("Klopfer");
+            }
 
-			// some example values
-			assertThat(actual)
-					.contains("StateMachine")
-					.contains("INIT")
-					.contains("MyInitTransitions")
-			;
-		}
-	}
+            @Test
+            void prettyPrint_should_not_crash() {
+                String actual = sm.toString();
+
+                // some example values
+                assertThat(actual)
+                        .contains("StateMachine")
+                        .contains("INIT")
+                        .contains("MyInitTransitions")
+                ;
+            }
+        }
+    }
 
 }

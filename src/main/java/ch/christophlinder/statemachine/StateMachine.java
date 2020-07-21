@@ -59,7 +59,7 @@ public class StateMachine<State extends Serializable, Transitions> {
     /**
      * <strong>Requires</strong> the transition function to return a non-null value!.
      *
-     * Just in case you absolute need a null: wrap it into an {@link Optional}.
+     * Just in case you absolutely need a null: wrap it into an {@link Optional}.
      */
     public <R> R transition(
             State fromState,

@@ -9,9 +9,15 @@ public interface MyTransitions {
     default String goNext(String a, String b) {
         throw new TransitionNotAllowed(String.format("params: %s/%s", a, b));
     }
+
     default boolean accept(String x) {
         throw new TransitionNotAllowed();
     }
+
+    default String someResult() {
+        throw new TransitionNotAllowed();
+    }
+
     default void cancel() {
         throw new AppFailureException();
     }

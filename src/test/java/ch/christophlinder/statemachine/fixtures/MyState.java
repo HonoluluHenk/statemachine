@@ -1,6 +1,6 @@
 package ch.christophlinder.statemachine.fixtures;
 
-public enum MyStates {
+public enum MyState {
     INIT,
     NEXT,
     ACCEPTED,

@@ -10,4 +10,9 @@ public class MyNextTransitions implements MyTransitions {
     public void cancel() {
         // example for a void method
     }
+
+    @Override
+    public String someResult() {
+        return "someResult";
+    }
 }
