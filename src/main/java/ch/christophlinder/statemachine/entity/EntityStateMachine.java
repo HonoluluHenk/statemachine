@@ -8,22 +8,26 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static java.util.Objects.requireNonNull;
 
 @DefaultAnnotation(NonNull.class)
 public class EntityStateMachine<Entity, State extends Serializable, Transitions> {
+    private final Supplier<Entity> entityCtor;
     private final Function<Entity, State> stateGetter;
     private final BiConsumer<Entity, State> stateSetter;
     private final StateMachine<State, Transitions> stateMachine;
 
-
     public EntityStateMachine(
+            Supplier<Entity> entityCtor,
             Function<Entity, State> stateGetter,
             BiConsumer<Entity, State> stateSetter,
             Map<State, Transitions> transitions
     ) {
+        this.entityCtor = requireNonNull(entityCtor, "No Entity constructor");
         this.stateGetter = requireNonNull(stateGetter, "No stateGetter");
         this.stateSetter = requireNonNull(stateSetter, "No stateSetter");
 
@@ -32,19 +36,36 @@ public class EntityStateMachine<Entity, State extends Serializable, Transitions>
 
     public static <Entity, State extends Serializable, Transitions>
     EntityStateMachine<Entity, State, Transitions> of(
+            Supplier<Entity> entityCtor,
             Function<Entity, State> stateGetter,
             BiConsumer<Entity, State> stateSetter,
             Map<State, Transitions> transitions
-
     ) {
-        return new EntityStateMachine<>(stateGetter, stateSetter, transitions);
+        return new EntityStateMachine<>(entityCtor, stateGetter, stateSetter, transitions);
     }
 
     public static <Entity extends EntityWithState<State>, State extends Serializable, Transitions>
     EntityStateMachine<Entity, State, Transitions> ofEntityWithState(
+            Supplier<Entity> entityCtor,
             Map<State, Transitions> transitions
     ) {
-        return of(EntityWithState::getState, EntityWithState::setState, transitions);
+        return of(
+                entityCtor,
+                EntityWithState::getState,
+                EntityWithState::setState,
+                transitions
+        );
+    }
+
+    public Entity newEntityAndThen(
+            BiFunction<Transitions, Entity, Entity> transition
+    ) {
+        Entity initial = entityCtor.get();
+        State state = stateGetter.apply(initial);
+
+        Entity entity = stateMachine.transition(state, (transitions) -> transition.apply(transitions, initial));
+
+        return entity;
     }
 
     public <Out extends Outcome<State>> Out transition(

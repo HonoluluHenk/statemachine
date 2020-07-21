@@ -2,14 +2,15 @@ package ch.christophlinder.statemachine.entity.fixtures;
 
 import ch.christophlinder.statemachine.TransitionNotAllowed;
 import ch.christophlinder.statemachine.entity.Outcome;
-import ch.christophlinder.statemachine.fixtures.MyStates;
 
 public interface YourTransitions {
-    class YourOutcome<R> extends Outcome<MyStates> {
+
+    class YourOutcome<R> extends Outcome<YourState> {
+
         private final R result;
 
-        public YourOutcome(MyStates myStates, R result) {
-            super(myStates);
+        public YourOutcome(YourState state, R result) {
+            super(state);
             this.result = result;
         }
 
@@ -18,6 +19,21 @@ public interface YourTransitions {
         }
     }
 
+    default YourEntity initialize(YourEntity entity) {
+        throw new TransitionNotAllowed();
+    }
+
+    default YourEntity initializeWithParams(YourEntity entity, String message) {
+        throw new TransitionNotAllowed();
+    }
+
+    default YourEntity initializeWithNewInstance(YourEntity entity, YourState otherEntitySTate) {
+        throw new TransitionNotAllowed();
+    }
+
+    default YourResult<String> cancelWithResult(String resultMessage) {
+        throw new TransitionNotAllowed();
+    }
 
     default YourOutcome<String> goNext() {
         throw new TransitionNotAllowed();
