@@ -52,7 +52,7 @@ public class StateMachine<State extends Serializable, Transitions> {
         requireNonNull(state);
 
         return stateMap.computeIfAbsent(state, (ignored) -> {
-            throw new TransitionNotAllowed(state, "state not registered", null);
+            throw new ActionDeniedException(state, "state not registered", null);
         });
     }
 
@@ -71,7 +71,7 @@ public class StateMachine<State extends Serializable, Transitions> {
             R result = requireNonNull(transition.apply(t), "transition invocation returned null, state: " + fromState);
             return result;
 
-        } catch (TransitionNotAllowed e) {
+        } catch (ActionDeniedException e) {
             throw enrichWithState(fromState, e);
         }
     }
@@ -83,19 +83,19 @@ public class StateMachine<State extends Serializable, Transitions> {
         try {
             Transitions t = transitionsFor(fromState);
             transition.accept(t);
-        } catch (TransitionNotAllowed e) {
+        } catch (ActionDeniedException e) {
             throw enrichWithState(fromState, e);
         }
     }
 
-    private TransitionNotAllowed enrichWithState(
+    private ActionDeniedException enrichWithState(
             State state,
-            TransitionNotAllowed e
+            ActionDeniedException e
     ) {
         if (e.getState() != null) {
             return e;
         }
-        return new TransitionNotAllowed(state, e.getDebugInfo(), e);
+        return new ActionDeniedException(state, e.getDebugInfo(), e);
     }
 
     @Override

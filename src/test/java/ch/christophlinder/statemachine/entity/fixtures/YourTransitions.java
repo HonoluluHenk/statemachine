@@ -1,41 +1,27 @@
 package ch.christophlinder.statemachine.entity.fixtures;
 
-import ch.christophlinder.statemachine.TransitionNotAllowed;
-import ch.christophlinder.statemachine.entity.Outcome;
+import ch.christophlinder.statemachine.ActionDeniedException;
+import ch.christophlinder.statemachine.entity.Result;
 
 public interface YourTransitions {
 
-    class YourOutcome<R> extends Outcome<YourState> {
-
-        private final R result;
-
-        public YourOutcome(YourState state, R result) {
-            super(state);
-            this.result = result;
-        }
-
-        public R getResult() {
-            return result;
-        }
+    default Result<YourState, YourEntity> initialize(YourEntity entity) {
+        throw new ActionDeniedException();
     }
 
-    default YourEntity initialize(YourEntity entity) {
-        throw new TransitionNotAllowed();
+    default Result<YourState, YourEntity> initializeWithParams(YourEntity entity, String message) {
+        throw new ActionDeniedException();
     }
 
-    default YourEntity initializeWithParams(YourEntity entity, String message) {
-        throw new TransitionNotAllowed();
+    default Result<YourState, YourEntity> initializeWithNewInstance(YourEntity entity, YourState otherEntitySTate) {
+        throw new ActionDeniedException();
     }
 
-    default YourEntity initializeWithNewInstance(YourEntity entity, YourState otherEntitySTate) {
-        throw new TransitionNotAllowed();
+    default Result<YourState, String> cancelWithResult(String resultMessage) {
+        throw new ActionDeniedException();
     }
 
-    default YourResult<String> cancelWithResult(String resultMessage) {
-        throw new TransitionNotAllowed();
-    }
-
-    default YourOutcome<String> goNext() {
-        throw new TransitionNotAllowed();
+    default Result<YourState, String> goNext() {
+        throw new ActionDeniedException();
     }
 }

@@ -104,20 +104,20 @@ public class StateMachineTest {
             public void throws_if_transition_not_registered() {
                 assertSoftly( softly -> {
                     softly.assertThatThrownBy(() -> sm.transition(CANCELLED, t -> t.goNext(A, B)))
-                            .isExactlyInstanceOf(TransitionNotAllowed.class);
+                            .isExactlyInstanceOf(ActionDeniedException.class);
 
                     softly.assertThatThrownBy(() -> sm.transition(CANCELLED, t -> t.accept(X)))
-                            .isExactlyInstanceOf(TransitionNotAllowed.class);
+                            .isExactlyInstanceOf(ActionDeniedException.class);
 
                     softly.assertThatThrownBy(() -> sm.doTransition(CANCELLED, MyTransitions::cancel))
-                            .isExactlyInstanceOf(TransitionNotAllowed.class);
+                            .isExactlyInstanceOf(ActionDeniedException.class);
                 });
             }
 
             @Test
             void throws_if_transition_not_allowed_in_state() {
-                TransitionNotAllowed ex = assertThrows(
-                        TransitionNotAllowed.class,
+                ActionDeniedException ex = assertThrows(
+                        ActionDeniedException.class,
                         () -> sm.<Boolean>transition(INIT, t -> t.accept("Schnitzel"))
                 );
 
@@ -134,9 +134,9 @@ public class StateMachineTest {
             }
 
             @Test
-            void TransitionNotAllowed_is_enriched_with_debug_info() {
-                TransitionNotAllowed ex = assertThrows(
-                        TransitionNotAllowed.class,
+            void IllegalTransitionException_is_enriched_with_debug_info() {
+                ActionDeniedException ex = assertThrows(
+                        ActionDeniedException.class,
                         () -> sm.transition(NEXT, t -> t.goNext("Schnitzel", "Klopfer"))
                 );
 

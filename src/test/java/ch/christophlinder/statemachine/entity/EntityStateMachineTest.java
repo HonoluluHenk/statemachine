@@ -1,9 +1,7 @@
 package ch.christophlinder.statemachine.entity;
 
-import ch.christophlinder.statemachine.StateMachine;
-import ch.christophlinder.statemachine.TransitionNotAllowed;
+import ch.christophlinder.statemachine.ActionDeniedException;
 import ch.christophlinder.statemachine.entity.fixtures.*;
-import ch.christophlinder.statemachine.entity.fixtures.YourTransitions.YourOutcome;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Nested;
@@ -33,16 +31,6 @@ public class EntityStateMachineTest {
         return map;
     }
 
-    @Test
-    void allow_getting_the_underlying_StateMachine() {
-        EntityStateMachine<YourEntity, YourState, YourTransitions> sm = buildStateMachine(() -> new YourEntity(INIT));
-
-        StateMachine<YourState, YourTransitions> actual = sm.getStateMachine();
-
-        assertThat(actual)
-                .isNotNull();
-    }
-
     @Nested
     class Transitions {
         private final EntityStateMachine<YourEntity, YourState, YourTransitions> sm = buildStateMachine(() -> new YourEntity(INIT));
@@ -51,11 +39,12 @@ public class EntityStateMachineTest {
         void allow_invoking_a_valid_transition() {
             YourEntity start = new YourEntity(INIT);
 
-            YourOutcome<String> actual = sm.transition(start, YourTransitions::goNext);
+            Result<YourState, String> actual = sm.using(start)
+                    .execute((t, e) -> t.goNext());
 
             assertSoftly(softly -> {
-                softly.assertThat(actual.getNextState())
-                        .isEqualTo(YourState.NEXT);
+                softly.assertThat(actual.nextState())
+                        .hasValue(YourState.NEXT);
                 softly.assertThat(actual.getResult())
                         .isEqualTo("Hello World");
             });
@@ -65,9 +54,9 @@ public class EntityStateMachineTest {
         void throw_when_invoking_illegal_transition() {
             YourEntity start = new YourEntity(CANCELLED);
 
-            TransitionNotAllowed ex = assertThrows(
-                    TransitionNotAllowed.class,
-                    () -> sm.transition(start, YourTransitions::goNext)
+            ActionDeniedException ex = assertThrows(
+                    ActionDeniedException.class,
+                    () -> sm.using(start).execute((t, e) -> t.goNext())
             );
 
             assertThat(ex)
@@ -78,11 +67,12 @@ public class EntityStateMachineTest {
         void allow_results_with_subclasses_in_transitions() {
             YourEntity start = new YourEntity(NEXT);
 
-            YourResult<String> result = sm.transition(start, tr -> tr.cancelWithResult("Test Cancel Message"));
+            Result<YourState, String> result = sm.using(start)
+                    .execute((tr, e) -> tr.cancelWithResult("Test Cancel Message"));
 
             assertSoftly(softly -> {
-                softly.assertThat(result.getNextState())
-                        .isEqualTo(CANCELLED);
+                softly.assertThat(result.nextState())
+                        .hasValue(CANCELLED);
                 softly.assertThat(result.getResult())
                         .isEqualTo("Test Cancel Message");
             });
@@ -98,7 +88,9 @@ public class EntityStateMachineTest {
 
             EntityStateMachine<YourEntity, YourState, YourTransitions> sm = buildStateMachine(() -> original);
 
-            YourEntity newEntity = sm.newEntityAndThen(YourTransitions::initialize);
+            YourEntity newEntity = sm.newEntity()
+                    .execute(YourTransitions::initialize)
+                    .getResult();
 
             assertSoftly(softly -> {
                 softly.assertThat(newEntity)
@@ -117,8 +109,9 @@ public class EntityStateMachineTest {
             YourEntity original = new YourEntity(initialState, "constructor message");
             EntityStateMachine<YourEntity, YourState, YourTransitions> sm = buildStateMachine(() -> original);
 
-            YourEntity newEntity = sm.newEntityAndThen((tr, entity) ->
-                    tr.initializeWithParams(entity, "test message"));
+            YourEntity newEntity = sm.newEntity()
+                    .execute((tr, entity) -> tr.initializeWithParams(entity, "test message"))
+                    .getResult();
 
             assertSoftly(softly -> {
                 softly.assertThat(newEntity)
@@ -135,8 +128,9 @@ public class EntityStateMachineTest {
             YourEntity original = new YourEntity(INIT, "constructor message");
             EntityStateMachine<YourEntity, YourState, YourTransitions> sm = buildStateMachine(() -> original);
 
-            YourEntity newEntity = sm.newEntityAndThen((tr, entity) ->
-                    tr.initializeWithNewInstance(entity, CANCELLED));
+            YourEntity newEntity = sm.newEntity()
+                    .execute((tr, entity) -> tr.initializeWithNewInstance(entity, CANCELLED))
+                    .getResult();
 
             assertSoftly(softly -> {
                 softly.assertThat(newEntity)
@@ -153,9 +147,10 @@ public class EntityStateMachineTest {
             YourEntity original = new YourEntity(CANCELLED);
             EntityStateMachine<YourEntity, YourState, YourTransitions> sm = buildStateMachine(() -> original);
 
-            TransitionNotAllowed ex = assertThrows(
-                    TransitionNotAllowed.class,
-                    () -> sm.newEntityAndThen(YourTransitions::initialize)
+            ActionDeniedException ex = assertThrows(
+                    ActionDeniedException.class,
+                    () -> sm.newEntity()
+                            .execute(YourTransitions::initialize)
             );
 
             assertThat(ex)

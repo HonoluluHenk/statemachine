@@ -4,25 +4,29 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 
 import java.io.Serializable;
 
-public class TransitionNotAllowed extends RuntimeException {
+public class ActionDeniedException extends RuntimeException {
     @Nullable
     private final Serializable state;
     @Nullable
     private final String debugInfo;
 
-    TransitionNotAllowed(Serializable state, @Nullable String debugInfo, @Nullable TransitionNotAllowed cause) {
+    ActionDeniedException(
+            @Nullable Serializable state,
+            @Nullable String debugInfo,
+            @Nullable ActionDeniedException cause
+    ) {
         super("Transition not allowed in state: " + state + ", debugInfo: " + debugInfo, cause);
         this.state = state;
         this.debugInfo = debugInfo;
     }
 
-    public TransitionNotAllowed(@Nullable String debugInfo) {
+    public ActionDeniedException(@Nullable String debugInfo) {
         super("Transition not allowed in state: (see next exception in stacktrace), debugInfo: " + debugInfo);
         this.state = null;
         this.debugInfo = debugInfo;
     }
 
-    public TransitionNotAllowed() {
+    public ActionDeniedException() {
         this("(no debugInfo)");
     }
 

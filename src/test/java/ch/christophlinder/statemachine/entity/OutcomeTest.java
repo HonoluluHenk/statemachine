@@ -14,17 +14,28 @@ class OutcomeTest {
 
     @Test
     void getter_retrieves_value_from_ctor() {
-        Outcome<BigInteger> out = new Outcome<>(BigInteger.ZERO);
+        Outcome<BigInteger> out = Outcome.of(BigInteger.ZERO);
 
+        assertThat(out.nextState())
+                .hasValue(BigInteger.ZERO);
         assertThat(out.getNextState())
-                .isSameAs(BigInteger.ZERO);
+                .isEqualTo(BigInteger.ZERO);
     }
 
     @Test
     void throws_on_null_state_param() {
-        //noinspection ResultOfObjectAllocationIgnored
         assertThrows(
                 NullPointerException.class,
-                () -> new Outcome<>(null));
+                () -> Outcome.of(null));
+    }
+
+    @Test
+    void sameState_must_yield_empty_NextState() {
+        Outcome<Object> out = Outcome.sameState();
+
+        assertThat(out.nextState())
+                .isEmpty();
+        assertThat(out.getNextState())
+                .isNull();
     }
 }

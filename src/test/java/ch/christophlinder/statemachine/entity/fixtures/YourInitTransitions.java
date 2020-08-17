@@ -1,27 +1,29 @@
 package ch.christophlinder.statemachine.entity.fixtures;
 
+import ch.christophlinder.statemachine.entity.Result;
+
 public class YourInitTransitions implements YourTransitions {
     @Override
-    public YourEntity initialize(YourEntity entity) {
+    public Result<YourState, YourEntity> initialize(YourEntity entity) {
         entity.setMessage("set in initialize");
 
-        return entity;
+        return Result.sameState(entity);
     }
 
     @Override
-    public YourEntity initializeWithParams(YourEntity entity, String message) {
+    public Result<YourState, YourEntity> initializeWithParams(YourEntity entity, String message) {
         entity.setMessage(message);
 
-        return entity;
+        return Result.sameState(entity);
     }
 
     @Override
-    public YourEntity initializeWithNewInstance(YourEntity entity, YourState otherEntityState) {
-        return new YourEntity(otherEntityState, "other instance");
+    public Result<YourState, YourEntity> initializeWithNewInstance(YourEntity entity, YourState otherEntityState) {
+        return Result.of(otherEntityState, new YourEntity(otherEntityState, "other instance"));
     }
 
     @Override
-    public YourOutcome<String> goNext() {
-        return new YourOutcome<>(YourState.NEXT, "Hello World");
+    public Result<YourState, String> goNext() {
+        return Result.of(YourState.NEXT, "Hello World");
     }
 }
