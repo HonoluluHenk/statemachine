@@ -1,62 +1,91 @@
 package ch.christophlinder.statemachine.demo;
 
+import java.util.EnumMap;
+import java.util.Map;
+
+import ch.christophlinder.statemachine.demo.actions.InitActions;
 import ch.christophlinder.statemachine.demo.actions.OrderActions;
+import ch.christophlinder.statemachine.demo.actions.PlacedActions;
+import ch.christophlinder.statemachine.demo.actions.ShoppingActions;
 import ch.christophlinder.statemachine.demo.utility.ERPService;
 import ch.christophlinder.statemachine.demo.utility.Persistence;
+import ch.christophlinder.statemachine.entity.EntityStateMachine;
 
 @SuppressWarnings("unused")
 public class ShopService {
 
-    private final OrderStateMachine stateMachine;
-    private final Persistence persistence;
+	private final EntityStateMachine<OrderActions, Order, OrderState> stateMachine;
+	private final Persistence persistence;
 
-    // Might be Spring @Autowired or CDI @Inject
-    public ShopService(ERPService erpService, Persistence persistence) {
-        this.stateMachine = new OrderStateMachine(erpService);
-        this.persistence = persistence;
-    }
+	// Might be Spring @Autowired or CDI @Inject
+	public ShopService(ERPService erpService, Persistence persistence) {
+		this.stateMachine = buildStateMachine(erpService);
+		this.persistence = persistence;
+	}
 
-    public Order createOrder(String customer) {
-        Order newOrder = stateMachine
-                .newEntity()
-                .execute((trns, order) -> trns.initialize(order, customer))
-                .getResult();
+	public EntityStateMachine<OrderActions, Order, OrderState> buildStateMachine(ERPService erpService) {
+		return EntityStateMachine.of(
+				// required if you want entities instantiated
+				// by newEntity()
+				() -> new Order(OrderState.INIT),
+				Order::getState,
+				Order::setState,
+				buildStates(erpService)
+		);
+	}
 
-        // example use-case, maybe using JPA
-        persistence.create(newOrder);
+	private static Map<OrderState, OrderActions> buildStates(ERPService erpService) {
+		Map<OrderState, OrderActions> states = new EnumMap<>(OrderState.class);
 
-        return newOrder;
-    }
+		states.put(OrderState.INIT, new InitActions());
+		states.put(OrderState.SHOPPING, new ShoppingActions(erpService));
+		states.put(OrderState.PLACED, new PlacedActions());
 
-    public OrderLine addOrderLine(Order order, String lineItem) {
-        OrderLine newLine = stateMachine
-                .using(order)
-                .execute((trns, o) -> trns.addOrderLine(o, lineItem))
-                .getResult();
+		// please note: since CANCELLED is a terminal state without any actions,
+		// nothing needs to be implemented for this state:
+		// states.put(OrderState.CANCELLED, new CancelledTransitions());
 
-        // example use-case, maybe using JPA
-        persistence.create(newLine);
-        persistence.update(order);
+		return states;
+	}
 
-        return newLine;
-    }
+	public Order createOrder(String customer) {
+		Order newOrder = stateMachine
+				.newEntity()
+				.apply((trns, order) -> trns.initialize(order, customer));
 
-    public void placeOrder(Order order) {
-        stateMachine
-                .using(order)
-                .execute(OrderActions::placeOrder);
+		// example use-case, maybe using JPA
+		persistence.create(newOrder);
 
-        // example use-case, maybe using JPA
-        persistence.update(order);
-    }
+		return newOrder;
+	}
 
-    public String printReceipt(Order order) {
-        String receipt = stateMachine
-                .using(order)
-                .execute(OrderActions::printReceipt)
-                .getResult();
+	public OrderLine addOrderLine(Order order, String lineItem) {
+		OrderLine newLine = stateMachine
+				.using(order)
+				.apply((trns, o) -> trns.addOrderLine(o, lineItem));
 
-        return receipt;
-    }
+		// example use-case, maybe using JPA
+		persistence.create(newLine);
+		persistence.update(order);
+
+		return newLine;
+	}
+
+	public void placeOrder(Order order) {
+		stateMachine
+				.using(order)
+				.accept(OrderActions::placeOrder);
+
+		// example use-case, maybe using JPA
+		persistence.update(order);
+	}
+
+	public String printReceipt(Order order) {
+		String receipt = stateMachine
+				.using(order)
+				.apply(OrderActions::printReceipt);
+
+		return receipt;
+	}
 
 }

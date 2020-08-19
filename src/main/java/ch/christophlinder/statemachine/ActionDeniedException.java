@@ -1,10 +1,15 @@
 package ch.christophlinder.statemachine;
 
+import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 
 import java.io.Serializable;
 
+@DefaultAnnotation(NonNull.class)
 public class ActionDeniedException extends RuntimeException {
+    private static final long serialVersionUID = -5023701263549284880L;
+
     @Nullable
     private final Serializable state;
     @Nullable

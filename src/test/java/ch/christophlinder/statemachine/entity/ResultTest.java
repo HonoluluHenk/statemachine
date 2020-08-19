@@ -11,7 +11,7 @@ class ResultTest {
 
         assertThat(r.nextState())
                 .hasValue("Foo");
-        assertThat(r.getResult())
+        assertThat(r.getValue())
                 .isEqualTo(42);
     }
 

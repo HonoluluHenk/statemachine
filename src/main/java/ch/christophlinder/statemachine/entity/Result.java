@@ -8,26 +8,26 @@ import static java.util.Objects.requireNonNull;
 
 @DefaultAnnotation(NonNull.class)
 public class Result<State, R> extends Outcome<State> {
-    private final R result;
+	private final R value;
 
-    protected Result(
-            @Nullable State o,
-            R result
-    ) {
-        super(o);
-        this.result = result;
-    }
+	protected Result(
+			@Nullable State nextState,
+			R value
+	) {
+		super(nextState);
+		this.value = requireNonNull(value);
+	}
 
-    public static <State, R> Result<State, R> of(State state, R result) {
-        return new Result<>(requireNonNull(state), result);
-    }
+	public static <State, R> Result<State, R> of(State state, R value) {
+		return new Result<>(requireNonNull(state), value);
+	}
 
-    public static <State, R> Result<State, R> sameState(R result) {
-        return new Result<>(null, result);
-    }
+	public static <State, R> Result<State, R> sameState(R result) {
+		return new Result<>(null, result);
+	}
 
-    public R getResult() {
-        return result;
-    }
+	public R getValue() {
+		return value;
+	}
 
 }

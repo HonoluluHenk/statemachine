@@ -1,8 +1,6 @@
 package ch.christophlinder.statemachine.entity.fixtures;
 
-import ch.christophlinder.statemachine.entity.EntityWithState;
-
-public class YourEntity implements EntityWithState<YourState> {
+public class YourEntity {
     private YourState state;
     private String message;
 
@@ -15,12 +13,10 @@ public class YourEntity implements EntityWithState<YourState> {
         this.message = message;
     }
 
-    @Override
     public YourState getState() {
         return state;
     }
 
-    @Override
     public void setState(YourState state) {
         this.state = state;
     }

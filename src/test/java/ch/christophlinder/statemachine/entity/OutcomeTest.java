@@ -18,12 +18,11 @@ class OutcomeTest {
 
         assertThat(out.nextState())
                 .hasValue(BigInteger.ZERO);
-        assertThat(out.getNextState())
-                .isEqualTo(BigInteger.ZERO);
     }
 
     @Test
     void throws_on_null_state_param() {
+        //noinspection ConstantConditions
         assertThrows(
                 NullPointerException.class,
                 () -> Outcome.of(null));
@@ -35,7 +34,5 @@ class OutcomeTest {
 
         assertThat(out.nextState())
                 .isEmpty();
-        assertThat(out.getNextState())
-                .isNull();
     }
 }
