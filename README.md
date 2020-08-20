@@ -12,8 +12,8 @@ Instead of storing the state in the statemachine and passing some state-paramete
 Depending on which StateMachine you choose, the statemachine checks the required start-state and updates your object-instance with the resulting state (the `Outcome`).
 
 # Demo
-There is a full demo implementation included in the test sources, see [src/test/java/ch/christophlinder/statemachine
-/demo/ShopService.java].
+There is a full demo implementation included in the test sources, see 
+[ShopService](src/test/java/ch/christophlinder/statemachine/demo/ShopService.java).
 
 
 ## Common Usage
@@ -179,7 +179,7 @@ The machine is implemented by following these easy steps:
     	}
     ```
 
-    See [src/test/java/ch/christophlinder/statemachine/demo/] for more demo invocations.
+    See [demo folder](src/test/java/ch/christophlinder/statemachine/demo/) for more demo invocations.
 
 ​    
 
