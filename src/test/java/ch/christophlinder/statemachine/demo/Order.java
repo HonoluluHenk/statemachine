@@ -5,36 +5,40 @@ import java.util.Collections;
 import java.util.List;
 
 public class Order {
-    private OrderState state;
-    private String customer;
-    private final List<OrderLine> orderLines = new ArrayList<>();
+	private OrderState state;
+	private String customer;
+	private final List<OrderLine> orderLines = new ArrayList<>();
 
-    public Order(OrderState state) {
-        this.state = state;
-    }
+	public Order() {
+		this.state = OrderState.INIT;
+	}
 
-    public OrderState getState() {
-        return state;
-    }
+	public Order(OrderState state) {
+		this.state = state;
+	}
 
-    public void setState(OrderState state) {
-        this.state = state;
-    }
+	public OrderState getState() {
+		return state;
+	}
 
-    public String getCustomer() {
-        return customer;
-    }
+	public void setState(OrderState state) {
+		this.state = state;
+	}
 
-    public void setCustomer(String customer) {
-        this.customer = customer;
-    }
+	public String getCustomer() {
+		return customer;
+	}
 
-    public List<OrderLine> getOrderLines() {
-        return Collections.unmodifiableList(orderLines);
-    }
+	public void setCustomer(String customer) {
+		this.customer = customer;
+	}
 
-    public void addOrderLine(OrderLine orderLine) {
-        orderLines.add(orderLine);
-    }
+	public List<OrderLine> getOrderLines() {
+		return Collections.unmodifiableList(orderLines);
+	}
+
+	public void addOrderLine(OrderLine orderLine) {
+		orderLines.add(orderLine);
+	}
 
 }

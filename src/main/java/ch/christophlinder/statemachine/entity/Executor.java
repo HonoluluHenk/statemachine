@@ -2,6 +2,7 @@ package ch.christophlinder.statemachine.entity;
 
 import java.io.Serializable;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -27,7 +28,10 @@ public class Executor<ActionsInterface, Entity, State extends Serializable> {
 	}
 
 	/**
-	 * Invoke an action without result (i.e.: a method returning only an {@link Outcome}.)
+	 * Invoke an action without result (i.e.: a method returning only an {@link Outcome}).
+	 *
+	 * For the caller of the statemachine, this effectively behaves like
+	 * {@link Consumer#accept(Object)} (hence the name).
 	 */
 	public void accept(
 			ActionInvocation<ActionsInterface, Entity, ? extends Outcome<State>> invocation
@@ -37,6 +41,9 @@ public class Executor<ActionsInterface, Entity, State extends Serializable> {
 
 	/**
 	 * Invoke an action with result (i.e.: a method returning a {@link Result}).
+	 *
+	 * For the caller of the statemachine, this effectively behaves like
+	 * {@link Function#apply(Object)} (hence the name).
 	 */
 	public <Value, Res extends Result<State, Value>> Value apply(
 			ActionInvocation<ActionsInterface, Entity, Res> invocation

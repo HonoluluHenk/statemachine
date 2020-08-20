@@ -11,7 +11,7 @@ import ch.christophlinder.statemachine.demo.utility.ERPService;
 import ch.christophlinder.statemachine.demo.utility.Persistence;
 import ch.christophlinder.statemachine.entity.EntityStateMachine;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({ "unused", "RedundantSuppression" })
 public class ShopService {
 
 	private final EntityStateMachine<OrderActions, Order, OrderState> stateMachine;
@@ -25,9 +25,7 @@ public class ShopService {
 
 	public EntityStateMachine<OrderActions, Order, OrderState> buildStateMachine(ERPService erpService) {
 		return EntityStateMachine.of(
-				// required if you want entities instantiated
-				// by newEntity()
-				() -> new Order(OrderState.INIT),
+				Order::new,
 				Order::getState,
 				Order::setState,
 				buildStates(erpService)
@@ -50,7 +48,9 @@ public class ShopService {
 
 	public Order createOrder(String customer) {
 		Order newOrder = stateMachine
+				// create a new entity instance using the configured CTOR
 				.newEntity()
+				// apply: invoke action that returns new state + result (the "Result")
 				.apply((trns, order) -> trns.initialize(order, customer));
 
 		// example use-case, maybe using JPA
@@ -61,7 +61,9 @@ public class ShopService {
 
 	public OrderLine addOrderLine(Order order, String lineItem) {
 		OrderLine newLine = stateMachine
+				// use the existing entity
 				.using(order)
+				// apply: invoke action that returns new state + result (the "Result")
 				.apply((trns, o) -> trns.addOrderLine(o, lineItem));
 
 		// example use-case, maybe using JPA
@@ -73,7 +75,9 @@ public class ShopService {
 
 	public void placeOrder(Order order) {
 		stateMachine
+				// use the existing entity
 				.using(order)
+				// accept: invoke action that only returns a new state (the "Outcome").
 				.accept(OrderActions::placeOrder);
 
 		// example use-case, maybe using JPA

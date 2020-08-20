@@ -5,12 +5,13 @@ import ch.christophlinder.statemachine.demo.OrderState;
 import ch.christophlinder.statemachine.entity.Result;
 
 public class InitActions implements OrderActions {
-    @Override
-    public Result<OrderState, Order> initialize(Order newOrder, String customer) {
-        newOrder.setCustomer(customer);
+	@Override
+	public Result<OrderState, Order> initialize(Order newOrder, String customer) {
+		newOrder.setCustomer(customer);
 
-        // now you might persist the order using e.g. JPA/Hibernate
+		// you might persist the order here or outside the statemachine
+		// depending on your taste/ORM-framework.
 
-        return Result.of(OrderState.SHOPPING, newOrder);
-    }
+		return Result.of(OrderState.SHOPPING, newOrder);
+	}
 }

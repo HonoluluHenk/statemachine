@@ -6,6 +6,9 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 
 import static java.util.Objects.requireNonNull;
 
+/**
+ * Represents an action-{@link Outcome} with an additional result value.
+ */
 @DefaultAnnotation(NonNull.class)
 public class Result<State, R> extends Outcome<State> {
 	private final R value;
@@ -28,6 +31,22 @@ public class Result<State, R> extends Outcome<State> {
 
 	public R getValue() {
 		return value;
+	}
+
+	/**
+	 * Convenience: allow initializing and then re-setting the value.
+	 * <p>
+	 * Example:
+	 * <pre>{@code
+	 * Result r = Result.of("Foo", "meh");
+	 * if (!itsWednesdayMyFriends) {
+	 *     return r;
+	 * }
+	 * return r.withValue("wednesday!");
+	 * }</pre>
+	 */
+	public <RR> Result<State, RR> withValue(RR newValue) {
+		return new Result<>(nextState().orElse(null), newValue);
 	}
 
 }

@@ -8,6 +8,11 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 
 import static java.util.Objects.requireNonNull;
 
+/**
+ * Return value of actions: represents the next state the entity should transition to.
+ *
+ * See {@link Result} for an outcome with result value.
+ */
 @DefaultAnnotation(NonNull.class)
 public class Outcome<State> {
 	@Nullable
