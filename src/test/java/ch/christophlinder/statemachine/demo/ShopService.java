@@ -51,7 +51,7 @@ public class ShopService {
 				// create a new entity instance using the configured CTOR
 				.newEntity()
 				// apply: invoke action that returns new state + result (the "Result")
-				.apply((trns, order) -> trns.initialize(order, customer));
+				.apply((actions, order) -> actions.initialize(order, customer));
 
 		// example use-case, maybe using JPA
 		persistence.create(newOrder);
@@ -64,7 +64,7 @@ public class ShopService {
 				// use the existing entity
 				.using(order)
 				// apply: invoke action that returns new state + result (the "Result")
-				.apply((trns, o) -> trns.addOrderLine(o, lineItem));
+				.apply((actions, o) -> actions.addOrderLine(o, lineItem));
 
 		// example use-case, maybe using JPA
 		persistence.create(newLine);

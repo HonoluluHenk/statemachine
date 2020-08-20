@@ -4,13 +4,16 @@ This module implements a simplified version of the [state pattern](https://en.wi
 
 Instead of storing the state in the statemachine and passing some state-parameters in a generic (probably type-unsafe) way into the statemachine, this implementation takes another opinionated approach:
 
-1. You define one interface with all possible transitions/actions with all methods marked as `default` but only throwing `TransitionDeniedException`
+1. You define one interface with all possible transitions/actions with all methods marked as `default` and an implementation that throws `TransitionDeniedException`
 2. You create implementations of the interface - one per state - that each only implements the functionality allowed for that state.
 3. You initialize the statemachine with a map of states to implementations.
 4. Now you can call the interface methods via the statemachine and it will select the correct implementation class.
 
 Depending on which StateMachine you choose, the statemachine checks the required start-state and updates your object-instance with the resulting state (the `Outcome`).
 
+# Demo
+There is a full demo implementation included in the test sources, see (src/test/java/ch/christophlinder/statemachine
+/demo/ShopService.java).
 
 
 ## Common Usage
@@ -30,7 +33,7 @@ The machine is implemented by following these easy steps:
 
    
 
-2. Define an interface containing all possible actions/transitions as `default` methods that only throw `ActionDeniedException`
+2. Define an interface containing all possible actions as `default` methods that only throw `ActionDeniedException`
 
     ```java
     import ch.christophlinder.statemachine.ActionDeniedException;
@@ -105,17 +108,14 @@ The machine is implemented by following these easy steps:
 4. Setup your statemachine with the allowed actions
 
     ```java
-    class ShopService {
-        private final EntityStateMachine<OrderActions, Order, OrderState> stateMachine;
-    
-        public Foo() {
-            this.stateMachine = EntityStateMachine.of(
-    				Order::new,
-    				Order::getState,
-    				Order::setState,
-    				buildStates(new ERPService());
-        }
-    
+    public Foo() {
+        EntityStateMachine<OrderActions, Order, OrderState> stateMachine = 
+            EntityStateMachine.of(
+                Order::new,
+                Order::getState,
+                Order::setState,
+                buildStates(new ERPService());
+    	}
     
     	private static Map<OrderState, OrderActions> buildStates(ERPService erpService) {
     		Map<OrderState, OrderActions> states = new EnumMap<>(OrderState.class);
@@ -126,7 +126,7 @@ The machine is implemented by following these easy steps:
     
     		// please note: since CANCELLED is a terminal state without any actions,
     		// nothing needs to be implemented for this state:
-    		// states.put(OrderState.CANCELLED, new CancelledTransitions());
+    		// states.put(OrderState.CANCELLED, new CancelledActions());
     
     		return states;
     	}
@@ -134,7 +134,7 @@ The machine is implemented by following these easy steps:
         // ...
     }
     ```
-
+    
 5. Invoke it:
 
     ```java
@@ -145,7 +145,7 @@ The machine is implemented by following these easy steps:
                 // create a new entity instance using the configured CTOR
                 .newEntity()
     			// apply: invoke action that returns new state + result (the "Result")
-                .apply((trns, order) -> trns.initialize(order, customer));
+                .apply((actions, order) -> actions.initialize(order, customer));
     
             // example use-case, maybe using JPA
             persistence.create(newOrder);
@@ -158,7 +158,7 @@ The machine is implemented by following these easy steps:
                 // use the existing entity
                 .using(order)
     			// apply: invoke action that returns new state + result (the "Result")
-                .apply((trns, o) -> trns.addOrderLine(o, lineItem));
+                .apply((actions, o) -> actions.addOrderLine(o, lineItem));
     
             // example use-case, maybe using JPA
             persistence.create(newLine);
@@ -179,14 +179,15 @@ The machine is implemented by following these easy steps:
     	}
     ```
 
-    See [src/test/java/ch/christophlinder/statemachine/demo/] for more demo invocations.
-
-
-
-
-
-
-
+    See (src/test/java/ch/christophlinder/statemachine/demo/) for more demo invocations.
 
 ​    
+
+
+
+
+
+# Licensing
+
+This software is distributed under the LGPL, see (LICENSE) for more details.
 
