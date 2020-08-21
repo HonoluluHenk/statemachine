@@ -167,16 +167,16 @@ The machine is implemented by following these easy steps:
             return newLine;
         }
     
-    	public void placeOrder(Order order) {
-    		stateMachine
-                	// use the existing entity
-    				.using(order)
-                	// action without return-value
-    				.accept(OrderActions::placeOrder);
-    
-    		// example use-case, maybe using JPA
-    		persistence.update(order);
-    	}
+        public void placeOrder(Order order) {
+            stateMachine
+                // use the existing entity
+                .using(order)
+                // action without return-value
+                .accept(OrderActions::placeOrder);
+        
+            // example use-case, maybe using JPA
+            persistence.update(order);
+        }
     }
     ```
 
@@ -186,7 +186,7 @@ The machine is implemented by following these easy steps:
 
 This lib is released as a maven artifact.
 
-This artifact is built and hosted on [jitpack](https://jitpack.io/).
+This artifact is built and hosted on [JitPack](https://jitpack.io/).
  You'll find information on how to integrate this repo at the jitpack page or in the [Maven](#Maven) section below. 
 
 groupId: com.github.HonoluluHenk
@@ -220,5 +220,5 @@ Dependency:
 
 # Licensing
 
-This software is distributed under the LGPL, see (LICENSE) for more details.
+This software is distributed under the LGPL, see [LICENSE] for more details.
 
