@@ -147,7 +147,7 @@ The machine is implemented by following these easy steps:
             Order newOrder = stateMachine
                 // create a new entity instance using the configured CTOR
                 .newEntity()
-    			// apply: invoke action that returns new state + result (the "Result")
+                // apply: invoke action that returns new state + result (the "Result")
                 .apply((actions, order) -> actions.initialize(order, customer));
     
             // example use-case, maybe using JPA
@@ -160,7 +160,7 @@ The machine is implemented by following these easy steps:
             OrderLine newLine = stateMachine
                 // use the existing entity
                 .using(order)
-    			// apply: invoke action that returns new state + result (the "Result")
+                // apply: invoke action that returns new state + result (the "Result")
                 .apply((actions, o) -> actions.addOrderLine(o, lineItem));
     
             // example use-case, maybe using JPA
