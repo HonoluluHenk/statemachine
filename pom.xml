@@ -4,6 +4,17 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
+    <!-- Release checklist                                              -->
+    <!--                                                                -->
+    <!-- set version in pom.xml                                         -->
+    <!-- ./mvnw clean package                                           -->
+    <!-- set git tag using release version                              -->
+    <!-- push master + tag                                              -->
+    <!-- force jitpack build: see maven profile "build-jitpack"         -->
+    <!-- update pom.xml to next SNAPSHOT                                -->
+    <!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
+
     <groupId>com.github.HonoluluHenk</groupId>
     <artifactId>statemachine</artifactId>
     <version>2.0.2-SNAPSHOT</version>
@@ -39,7 +50,33 @@
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <jitpack.build.version>${project.version}</jitpack.build.version>
     </properties>
+
+    <profiles>
+        <profile>
+            <!-- force build on jitpack -->
+            <!-- usage: ./mvnw -Pbuild-jitpack -Djitpack.build.version=x.y.z -->
+            <id>build-jitpack</id>
+            <build>
+                <defaultGoal>-U dependency:resolve</defaultGoal>
+            </build>
+            <repositories>
+                <repository>
+                    <id>jitpack.io</id>
+                    <url>https://jitpack.io</url>
+                </repository>
+            </repositories>
+            <dependencies>
+                <dependency>
+                    <groupId>${project.groupId}</groupId>
+                    <artifactId>${project.artifactId}</artifactId>
+                    <version>${jitpack.build.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 
     <dependencyManagement>
         <dependencies>
