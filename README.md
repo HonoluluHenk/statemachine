@@ -106,7 +106,9 @@ The machine is implemented by following these easy steps:
 4. Setup your statemachine with the allowed actions
 
     ```java
-    class ShopService {
+    import ch.christophlinder.statemachine.entity.EntityStateMachine;
+    
+    public class ShopService {
         private final EntityStateMachine<OrderActions, Order, OrderState> stateMachine;
         
         public ShopService() {
@@ -138,7 +140,8 @@ The machine is implemented by following these easy steps:
 5. Invoke it:
 
     ```java
-    class ShopService { // continued
+    public class ShopService {
+        // ...continued
     
         public Order createOrder(String customer) {
             Order newOrder = stateMachine
