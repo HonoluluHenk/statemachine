@@ -1,24 +1,24 @@
 package ch.christophlinder.statemachine;
 
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+import ch.christophlinder.statemachine.entity.function.TransitionConsumer;
+import ch.christophlinder.statemachine.entity.function.TransitionFunction;
 import edu.umd.cs.findbugs.annotations.NonNull;
 
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 
-@DefaultAnnotation(NonNull.class)
 public class StateMachine<State extends Serializable, Transitions> {
+
+    @NonNull
     private final Map<State, Transitions> stateMap;
 
     public StateMachine(
-            Map<State, Transitions> transitions
+            @NonNull Map<State, Transitions> transitions
     ) {
         requireNonNull(transitions, "No transitions map");
         if (transitions.isEmpty()) {
@@ -28,8 +28,9 @@ public class StateMachine<State extends Serializable, Transitions> {
         this.stateMap = requireValuesNotNull(new HashMap<>(transitions));
     }
 
+    @NonNull
     private static <K, V> Map<K, V> requireValuesNotNull(
-            Map<K, V> map
+            @NonNull Map<K, V> map
     ) {
         boolean containsNullValues = map.containsValue(null);
 
@@ -40,14 +41,16 @@ public class StateMachine<State extends Serializable, Transitions> {
         return map;
     }
 
+    @NonNull
     public static <State extends Serializable, Transitions> StateMachine<State, Transitions> of(
-            Map<State, Transitions> transitions
+            @NonNull Map<State, Transitions> transitions
     ) {
-        return new StateMachine<>(transitions);
+        return new StateMachine<>(requireNonNull(transitions));
     }
 
+    @NonNull
     private Transitions transitionsFor(
-            State state
+            @NonNull State state
     ) {
         requireNonNull(state);
 
@@ -61,12 +64,15 @@ public class StateMachine<State extends Serializable, Transitions> {
      * <p>
      * Just in case you absolutely need a null: wrap it into an {@link Optional}.
      */
+    @NonNull
     public <R> R transition(
-            State fromState,
-            Function<Transitions, R> transition
+            @NonNull State fromState,
+            @NonNull TransitionFunction<Transitions, R> transition
     ) {
-        try {
+        requireNonNull(fromState);
+        requireNonNull(transition);
 
+        try {
             Transitions t = transitionsFor(fromState);
             R result = requireNonNull(transition.apply(t), "transition invocation returned null, state: " + fromState);
             return result;
@@ -77,9 +83,12 @@ public class StateMachine<State extends Serializable, Transitions> {
     }
 
     public void doTransition(
-            State fromState,
-            Consumer<Transitions> transition
+            @NonNull State fromState,
+            @NonNull TransitionConsumer<Transitions> transition
     ) {
+        requireNonNull(fromState);
+        requireNonNull(transition);
+
         try {
             Transitions t = transitionsFor(fromState);
             transition.accept(t);
@@ -88,10 +97,14 @@ public class StateMachine<State extends Serializable, Transitions> {
         }
     }
 
+    @NonNull
     private ActionDeniedException enrichWithState(
-            State state,
-            ActionDeniedException e
+            @NonNull State state,
+            @NonNull ActionDeniedException e
     ) {
+        requireNonNull(state);
+        requireNonNull(e);
+
         if (e.getState() != null) {
             return e;
         }
@@ -99,10 +112,12 @@ public class StateMachine<State extends Serializable, Transitions> {
     }
 
     @Override
+    @NonNull
     public String toString() {
         return String.format("[StateMachine,{%s}]", prettyPrintStates());
     }
 
+    @NonNull
     private String prettyPrintStates() {
         String result = this.stateMap.entrySet().stream()
                 .map(e -> e.getKey() + "=" + e.getValue().getClass().getSimpleName())

@@ -1,23 +1,17 @@
 package ch.christophlinder.statemachine.entity;
 
-import java.util.EnumMap;
-import java.util.Map;
-import java.util.function.Supplier;
-
 import ch.christophlinder.statemachine.ActionDeniedException;
-import ch.christophlinder.statemachine.entity.fixtures.YourEntity;
-import ch.christophlinder.statemachine.entity.fixtures.YourInitTransitions;
-import ch.christophlinder.statemachine.entity.fixtures.YourNextTransitions;
-import ch.christophlinder.statemachine.entity.fixtures.YourState;
-import ch.christophlinder.statemachine.entity.fixtures.YourTransitions;
+import ch.christophlinder.statemachine.entity.fixtures.*;
+import ch.christophlinder.statemachine.entity.function.EntitySupplier;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static ch.christophlinder.statemachine.entity.fixtures.YourState.CANCELLED;
-import static ch.christophlinder.statemachine.entity.fixtures.YourState.INIT;
-import static ch.christophlinder.statemachine.entity.fixtures.YourState.NEXT;
+import java.util.EnumMap;
+import java.util.Map;
+
+import static ch.christophlinder.statemachine.entity.fixtures.YourState.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -25,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class EntityStateMachineTest {
 
-	public static EntityStateMachine<YourTransitions, YourEntity, YourState> buildStateMachine(Supplier<YourEntity> entityCtor) {
+	public static EntityStateMachine<YourTransitions, YourEntity, YourState> buildStateMachine(EntitySupplier<YourEntity> entityCtor) {
 		return EntityStateMachine.of(
 				entityCtor,
 				YourEntity::getState,

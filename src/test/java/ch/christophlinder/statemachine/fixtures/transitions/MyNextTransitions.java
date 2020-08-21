@@ -1,5 +1,7 @@
 package ch.christophlinder.statemachine.fixtures.transitions;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class MyNextTransitions implements MyTransitions {
     @Override
     public boolean accept(String x) {
@@ -9,6 +11,11 @@ public class MyNextTransitions implements MyTransitions {
     @Override
     public void cancel() {
         // example for a void method
+    }
+
+    @Override
+    public void sideEffect(AtomicInteger inOut, int newValue) {
+        inOut.set(newValue);
     }
 
     @Override

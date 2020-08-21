@@ -8,6 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class ResultTest {
+
     @Test
     void factory_passes_arguments_to_getter() {
         Result<String, Integer> r = Result.of("Foo", 42);

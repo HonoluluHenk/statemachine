@@ -4,6 +4,8 @@ import ch.christophlinder.statemachine.ActionDeniedException;
 import ch.christophlinder.statemachine.fixtures.AppFailureException;
 import edu.umd.cs.findbugs.annotations.Nullable;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public interface MyTransitions {
     @Nullable
     default String goNext(String a, String b) {
@@ -24,6 +26,10 @@ public interface MyTransitions {
 
     @Nullable
     default String returnNull() {
+        throw new ActionDeniedException();
+    }
+
+    default void sideEffect(AtomicInteger inOut, int newValue) {
         throw new ActionDeniedException();
     }
 }

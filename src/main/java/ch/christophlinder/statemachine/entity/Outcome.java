@@ -1,40 +1,41 @@
 package ch.christophlinder.statemachine.entity;
 
-import java.util.Optional;
-
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
+
+import java.util.Optional;
 
 import static java.util.Objects.requireNonNull;
 
 /**
  * Return value of actions: represents the next state the entity should transition to.
- *
+ * <p>
  * See {@link Result} for an outcome with result value.
  */
-@DefaultAnnotation(NonNull.class)
 public class Outcome<State> {
-	@Nullable
-	private final State nextState;
+    @Nullable
+    private final State nextState;
 
-	protected Outcome(@Nullable State nextState) {
-		this.nextState = nextState;
-	}
+    protected Outcome(@Nullable State nextState) {
+        this.nextState = nextState;
+    }
 
-	public static <NextState> Outcome<NextState> of(NextState nextState) {
-		return new Outcome<>(requireNonNull(nextState));
-	}
+    @NonNull
+    public static <NextState> Outcome<NextState> of(@NonNull NextState nextState) {
+        return new Outcome<>(requireNonNull(nextState));
+    }
 
-	/**
-	 * Signal the state-machine to keep the current state unchanged.
-	 */
-	public static <NextState> Outcome<NextState> sameState() {
-		return new Outcome<>(null);
-	}
+    /**
+     * Signal the state-machine to keep the current state unchanged.
+     */
+    @NonNull
+    public static <NextState> Outcome<NextState> sameState() {
+        return new Outcome<>(null);
+    }
 
-	public Optional<State> nextState() {
-		return Optional.ofNullable(nextState);
-	}
+    @NonNull
+    public Optional<State> nextState() {
+        return Optional.ofNullable(nextState);
+    }
 
 }

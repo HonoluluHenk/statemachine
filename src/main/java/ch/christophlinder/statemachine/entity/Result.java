@@ -1,6 +1,5 @@
 package ch.christophlinder.statemachine.entity;
 
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 
@@ -9,44 +8,63 @@ import static java.util.Objects.requireNonNull;
 /**
  * Represents an action-{@link Outcome} with an additional result value.
  */
-@DefaultAnnotation(NonNull.class)
 public class Result<State, R> extends Outcome<State> {
-	private final R value;
+    @NonNull
+    private final R value;
 
-	protected Result(
-			@Nullable State nextState,
-			R value
-	) {
-		super(nextState);
-		this.value = requireNonNull(value);
-	}
+    protected Result(
+            @Nullable State nextState,
+            @NonNull R value
+    ) {
+        super(nextState);
+        this.value = requireNonNull(value);
+    }
 
-	public static <State, R> Result<State, R> of(State state, R value) {
-		return new Result<>(requireNonNull(state), value);
-	}
+    @NonNull
+    public static <State, R> Result<State, R> of(
+            @NonNull State state,
+            @NonNull R value
+    ) {
+        requireNonNull(state);
+        requireNonNull(value);
 
-	public static <State, R> Result<State, R> sameState(R result) {
-		return new Result<>(null, result);
-	}
+        return new Result<>(requireNonNull(state), value);
+    }
 
-	public R getValue() {
-		return value;
-	}
+    @NonNull
+    public static <State, R> Result<State, R> sameState(
+            @NonNull R result
+    ) {
+        requireNonNull(result);
 
-	/**
-	 * Convenience: allow initializing and then re-setting the value.
-	 * <p>
-	 * Example:
-	 * <pre>{@code
-	 * Result r = Result.of("Foo", "meh");
-	 * if (!itsWednesdayMyFriends) {
-	 *     return r;
-	 * }
-	 * return r.withValue("wednesday!");
-	 * }</pre>
-	 */
-	public <RR> Result<State, RR> withValue(RR newValue) {
-		return new Result<>(nextState().orElse(null), newValue);
-	}
+        return new Result<>(null, result);
+    }
+
+    @NonNull
+    public R getValue() {
+        return value;
+    }
+
+    /**
+     * Convenience: allow initializing and then re-setting the value.
+     * <p>
+     * Example:
+     * <pre>{@code
+     * Result r = Result.of("Foo", "meh");
+     * if (!itsWednesdayMyFriends) {
+     *     return r;
+     * }
+     * return r.withValue("wednesday!");
+     * }</pre>
+     */
+    @NonNull
+    public <NewR> Result<State, NewR> withValue(@NonNull NewR newValue) {
+        requireNonNull(newValue);
+
+        State nextState = nextState()
+                .orElse(null);
+
+        return new Result<>(nextState, newValue);
+    }
 
 }

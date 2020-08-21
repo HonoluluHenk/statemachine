@@ -1,15 +1,14 @@
 package ch.christophlinder.statemachine.entity;
 
-import java.io.Serializable;
-import java.util.Map;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
-
 import ch.christophlinder.statemachine.ActionDeniedException;
 import ch.christophlinder.statemachine.StateMachine;
-import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
+import ch.christophlinder.statemachine.entity.function.EntityBiConsumer;
+import ch.christophlinder.statemachine.entity.function.EntityFunction;
+import ch.christophlinder.statemachine.entity.function.EntitySupplier;
 import edu.umd.cs.findbugs.annotations.NonNull;
+
+import java.io.Serializable;
+import java.util.Map;
 
 import static java.util.Objects.requireNonNull;
 
@@ -20,42 +19,53 @@ import static java.util.Objects.requireNonNull;
  * @param <State> Your state demarcation class.
  * Most probably an enum but might be anything as long as it is suitable as a {@link Map} key.
  */
-@DefaultAnnotation(NonNull.class)
 public class EntityStateMachine<ActionsInterface, Entity, State extends Serializable> {
-	private final Supplier<Entity> entityCtor;
-	private final Function<Entity, State> stateGetter;
-	private final BiConsumer<Entity, State> stateSetter;
-	private final StateMachine<State, ActionsInterface> stateMachine;
 
-	private EntityStateMachine(
-			Supplier<Entity> entityCtor,
-			Function<Entity, State> stateGetter,
-			BiConsumer<Entity, State> stateSetter,
-			Map<State, ActionsInterface> actions
-	) {
-		this.entityCtor = requireNonNull(entityCtor, "No Entity constructor");
-		this.stateGetter = requireNonNull(stateGetter, "No stateGetter");
-		this.stateSetter = requireNonNull(stateSetter, "No stateSetter");
+    @NonNull
+    private final EntitySupplier<Entity> entityCtor;
+    @NonNull
+    private final EntityFunction<Entity, State> stateGetter;
+    @NonNull
+    private final EntityBiConsumer<Entity, State> stateSetter;
+    @NonNull
+    private final StateMachine<State, ActionsInterface> stateMachine;
 
-		stateMachine = new StateMachine<>(actions);
-	}
+    private EntityStateMachine(
+            @NonNull EntitySupplier<Entity> entityCtor,
+            @NonNull EntityFunction<Entity, State> stateGetter,
+            @NonNull EntityBiConsumer<Entity, State> stateSetter,
+            @NonNull Map<State, ActionsInterface> actions
+    ) {
+        this.entityCtor = requireNonNull(entityCtor, "No Entity constructor");
+        this.stateGetter = requireNonNull(stateGetter, "No stateGetter");
+        this.stateSetter = requireNonNull(stateSetter, "No stateSetter");
 
-	public static <ActionsInterface, Entity, State extends Serializable>
-	EntityStateMachine<ActionsInterface, Entity, State> of(
-			Supplier<Entity> entityCtor,
-			Function<Entity, State> stateGetter,
-			BiConsumer<Entity, State> stateSetter,
-			Map<State, ActionsInterface> actions
-	) {
-		return new EntityStateMachine<>(entityCtor, stateGetter, stateSetter, actions);
-	}
+        stateMachine = new StateMachine<>(actions);
+    }
 
-	public Executor<ActionsInterface, Entity, State> newEntity() {
-		return new Executor<>(entityCtor, stateGetter, stateSetter, stateMachine);
-	}
+    @NonNull
+    public static <ActionsInterface, Entity, State extends Serializable>
+    EntityStateMachine<ActionsInterface, Entity, State> of(
+            @NonNull EntitySupplier<Entity> entityCtor,
+            @NonNull EntityFunction<Entity, State> stateGetter,
+            @NonNull EntityBiConsumer<Entity, State> stateSetter,
+            @NonNull Map<State, ActionsInterface> actions
+    ) {
+        return new EntityStateMachine<>(entityCtor, stateGetter, stateSetter, actions);
+    }
 
-	public Executor<ActionsInterface, Entity, State> using(Entity entity) {
-		return new Executor<>(() -> entity, stateGetter, stateSetter, stateMachine);
-	}
+    @NonNull
+    public Executor<ActionsInterface, Entity, State> newEntity() {
+        return new Executor<>(entityCtor, stateGetter, stateSetter, stateMachine);
+    }
+
+    @NonNull
+    public Executor<ActionsInterface, Entity, State> using(
+            @NonNull Entity entity
+    ) {
+        requireNonNull(entity);
+
+        return new Executor<>(() -> entity, stateGetter, stateSetter, stateMachine);
+    }
 
 }

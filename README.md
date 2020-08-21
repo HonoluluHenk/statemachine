@@ -10,7 +10,16 @@ Instead of storing the state in the statemachine and passing some state-paramete
 3. You initialize the statemachine with a map of states to implementations.
 4. Now you can call the interface methods via the statemachine and it will select the correct implementation class.
 
-Depending on which StateMachine you choose, the statemachine checks the required start-state and updates your object-instance with the resulting state (the `Outcome`).
+The EntityStateMachine checks the required start-state, then executes the action and then updates your 
+entity-instance with the resulting state of the action.
+
+The return value of action methods must be either an [Outcome](src/main/java/ch/christophlinder/statemachine/entity/Outcome.java) (just holds the next state) 
+or a [Result](src/main/java/ch/christophlinder/statemachine/entity/Result.java) (next state + a function-result value).
+
+# Null/NonNull
+All parameters/return-values are NonNull if not explicitly stated otherwise.
+
+Nullability is marked by the `edu.umd.cs.findbugs.annotations.Nullable` Annotation. 
 
 # Demo classes
 There is a full demo implementation included in the test sources, see 

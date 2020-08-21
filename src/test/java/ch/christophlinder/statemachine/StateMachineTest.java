@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static ch.christophlinder.statemachine.fixtures.MyState.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -96,6 +97,16 @@ public class StateMachineTest {
         void transitions_without_parameters_do_not_throw() {
                 assertThatCode(() -> sm.doTransition(NEXT, MyTransitions::cancel))
                         .doesNotThrowAnyException();
+        }
+
+        @Test
+        void doTransition_calls_transition_impl() {
+            AtomicInteger inOut = new AtomicInteger(0);
+
+            sm.doTransition(NEXT, t -> t.sideEffect(inOut, 42));
+
+            assertThat(inOut.get())
+                    .isEqualTo(42);
         }
 
         @Nested
