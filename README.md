@@ -4,19 +4,19 @@ This module implements a simplified version of the [state pattern](https://en.wi
 
 Instead of storing the state in the statemachine and passing some state-parameters in a generic (probably type-unsafe) way into the statemachine, this implementation takes another opinionated approach:
 
-1. You define one interface with all possible transitions/actions with all methods marked as `default` and an implementation that throws `TransitionDeniedException`
+1. You define one interface with all possible transitions/actions with all methods marked as `default` and an
+ implementation that throws `ActionDeniedException`
 2. You create implementations of the interface - one per state - that each only implements the functionality allowed for that state.
 3. You initialize the statemachine with a map of states to implementations.
 4. Now you can call the interface methods via the statemachine and it will select the correct implementation class.
 
 Depending on which StateMachine you choose, the statemachine checks the required start-state and updates your object-instance with the resulting state (the `Outcome`).
 
-# Demo
+# Demo classes
 There is a full demo implementation included in the test sources, see 
 [ShopService](src/test/java/ch/christophlinder/statemachine/demo/ShopService.java).
 
-
-## Common Usage
+# Common Usage patterns
 
 The machine is implemented by following these easy steps:
 
@@ -30,8 +30,6 @@ The machine is implemented by following these easy steps:
        CANCELLED
    }
    ```
-
-   
 
 2. Define an interface containing all possible actions as `default` methods that only throw `ActionDeniedException`
 
@@ -108,29 +106,31 @@ The machine is implemented by following these easy steps:
 4. Setup your statemachine with the allowed actions
 
     ```java
-    public Foo() {
-        EntityStateMachine<OrderActions, Order, OrderState> stateMachine = 
-            EntityStateMachine.of(
+    class ShopService {
+        private final EntityStateMachine<OrderActions, Order, OrderState> stateMachine;
+        
+        public ShopService() {
+            this.stateMachine = EntityStateMachine.of(
                 Order::new,
                 Order::getState,
                 Order::setState,
-                buildStates(new ERPService());
-    	}
-    
-    	private static Map<OrderState, OrderActions> buildStates(ERPService erpService) {
-    		Map<OrderState, OrderActions> states = new EnumMap<>(OrderState.class);
-    
-    		states.put(OrderState.INIT, new InitActions());
-    		states.put(OrderState.SHOPPING, new ShoppingActions(erpService));
-    		states.put(OrderState.PLACED, new PlacedActions());
-    
-    		// please note: since CANCELLED is a terminal state without any actions,
-    		// nothing needs to be implemented for this state:
-    		// states.put(OrderState.CANCELLED, new CancelledActions());
-    
-    		return states;
-    	}
+                buildStates(new ERPService()));
+        }
         
+        private static Map<OrderState, OrderActions> buildStates(ERPService erpService) {
+            Map<OrderState, OrderActions> states = new EnumMap<>(OrderState.class);
+        
+            states.put(OrderState.INIT, new InitActions());
+            states.put(OrderState.SHOPPING, new ShoppingActions(erpService));
+            states.put(OrderState.PLACED, new PlacedActions());
+        
+            // please note: since CANCELLED is a terminal state without any actions,
+            // nothing needs to be implemented for this state:
+            // states.put(OrderState.CANCELLED, new CancelledActions());
+        
+            return states;
+        }
+    
         // ...
     }
     ```
@@ -138,7 +138,7 @@ The machine is implemented by following these easy steps:
 5. Invoke it:
 
     ```java
-    // ShopService continued
+    class ShopService { // continued
     
         public Order createOrder(String customer) {
             Order newOrder = stateMachine
@@ -177,14 +177,45 @@ The machine is implemented by following these easy steps:
     		// example use-case, maybe using JPA
     		persistence.update(order);
     	}
+    }
     ```
 
     See [demo folder](src/test/java/ch/christophlinder/statemachine/demo/) for more demo invocations.
 
-​    
+# Installation
 
+This lib is released as a maven artifact.
 
+This artifact is built and hosted on [jitpack](https://jitpack.io/).
+ You'll find information on how to integrate this repo at the jitpack page or in the [Maven](#Maven) section below. 
 
+groupId: com.github.HonoluluHenk
+artifactId: statemachine
+
+## Versioning
+This project tries really hard to stick to [semantic versioning](https://semver.org).
+
+See [project releases](https://github.com/HonoluluHenk/statemachine/releases) for available versions.
+
+## Maven
+Add the artifact repository:
+```xml
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
+```
+
+Dependency:
+```xml
+<dependency>
+    <groupId>com.github.HonoluluHenk</groupId>
+    <artifactId>statemachine</artifactId>
+    <version>x.y.z</version>
+</dependency>
+```
 
 
 # Licensing
